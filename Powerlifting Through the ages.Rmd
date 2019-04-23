@@ -1,0 +1,284 @@
+---
+title: "Powerlifting Through the ages"
+author: "David Ing"
+date: "April 21, 2019"
+output: html_document
+---
+
+
+#Loading Packages and Dataset
+```{r echo = FALSE}
+# Load Packages
+library(tidyverse)
+library(lubridate)
+library(DT)
+library(ggplot2)
+library(grid)
+library(ggpubr)
+library(gridExtra)
+
+#read the data
+
+meets = read_csv("C:/Users/David Ing/Documents/datasets/powerlifting-database/meets.csv")
+openpowerlifting = read_csv("C:/Users/David Ing/Documents/datasets/powerlifting-database/openpowerlifting.csv")
+
+```
+
+
+#Data Wrangling
+```{r}
+Powerliftingstats = subset(openpowerlifting, 
+                           select = c('Age', 'Sex', 'BestBenchKg', 'BestSquatKg', 'BestDeadliftKg', 'TotalKg'), 
+                           drop = 'BestDeadliftKg' > 0, 'Age' > 0, 'BestSquatKg' > 0, 'BestBenchKg' > 0, 'TotalKg' > 0)
+Powerliftingstatsclean = na.omit(Powerliftingstats[1:20000,])
+Powerliftingstatsclean
+
+
+clean_lifting_data = openpowerlifting %>%
+  select(Name, Sex, Age, BodyweightKg,BestSquatKg, BestBenchKg, BestDeadliftKg, TotalKg, Wilks, Equipment)
+clean_lifting_data = clean_lifting_data[complete.cases(clean_lifting_data),]
+```
+
+
+#Deadlift between Male and Females
+```{r}
+#Both Gender
+Deadlift = ggplot(Powerliftingstatsclean, aes(x=Age, y=BestDeadliftKg)) + 
+  geom_point(color = "dodgerblue3", alpha = 0.3) + 
+  geom_smooth(method = 'loess', se=FALSE, color= "grey2") + 
+  scale_x_continuous(limits = c(0,100),breaks = c(10,20,30,40,50,60,70,80,90,100))+ 
+  scale_y_continuous(limits = c(0,400)) + 
+  labs(title = "Age vs Deadlift")
+Deadlift
+
+#Female deadlift
+FemaleDeadlift = ggplot(filter(Powerliftingstatsclean, Sex == 'F'), aes(x=Age, y=BestDeadliftKg))  + 
+  geom_point(color = "dodgerblue3", alpha = 0.3) + 
+  geom_smooth(method = 'loess', se=FALSE, color = "gray2") + 
+  scale_x_continuous(limits = c(0,80),breaks = c(10,20,30,40,50,60,70,80))+ 
+  scale_y_continuous(limits = c(0,300)) + 
+  ggtitle("Female: Age vs Deadlift")
+FemaleDeadlift
+
+
+#Male Deadlift 
+MaleDeadlift=ggplot(filter(Powerliftingstatsclean, Sex == 'M'), aes(x=Age, y=BestDeadliftKg))  + 
+  geom_point(color = "dodgerblue3", alpha = 0.3) + 
+  geom_smooth(method = 'loess', se=FALSE, color = "gray2") + 
+  scale_x_continuous(limits = c(0,85),breaks = c(10,20,30,40,50,60,70,80,90))+ 
+  scale_y_continuous(limits = c(0,400)) + 
+  ggtitle("Male: Age vs Deadlift")                         
+MaleDeadlift
+```
+
+#Bench Press Between Male and Female
+```{r}
+#Bench Press
+Bench = ggplot(Powerliftingstatsclean, aes(x=Age, y=BestBenchKg)) + 
+  geom_point(color = "red2", alpha = 0.3) +
+  geom_smooth(method = 'loess', se=FALSE, color = "gray2") + 
+  scale_x_continuous(limits = c(0,100),breaks = c(10,20,30,40,50,60,70,80,90,100))+ 
+  scale_y_continuous(limits = c(0,500)) + 
+  ggtitle("Age vs Bench")
+Bench
+
+#Female Bench
+FemaleBench = ggplot(filter(Powerliftingstatsclean, Sex == 'F'), aes(x=Age, y=BestBenchKg)) + 
+  geom_point(color = "red2", alpha = 0.3) + 
+  geom_smooth(method = 'loess', se=FALSE, color = "gray2") + 
+  scale_x_continuous(limits = c(0,80),breaks = c(10,20,30,40,50,60,70,80))+ 
+  scale_y_continuous(limits = c(0,300)) +
+  ggtitle("Female: Age vs Benchpress")
+FemaleBench
+
+#Male Bench 
+MaleBench = ggplot(filter(Powerliftingstatsclean, Sex == 'M'), aes(x=Age, y=BestBenchKg)) + 
+  geom_point(color = "red2", alpha = 0.3) + 
+  geom_smooth(method = 'loess', se=FALSE, color = "gray2") + 
+  scale_x_continuous(limits = c(0,85),breaks = c(10,20,30,40,50,60,70,80))+ 
+  scale_y_continuous(limits = c(0,500)) +
+  ggtitle("Male: Age vs Benchpress")
+MaleBench
+```
+
+#Squat Between Male and Female
+```{r}
+#Squat
+Squat = ggplot(Powerliftingstatsclean, aes(x=Age, y=BestSquatKg)) + 
+  geom_point(color = "magenta3", alpha = 0.3) + 
+  geom_smooth(method = 'loess', se=FALSE, color = "gray2") + 
+  scale_x_continuous(limits = c(0,100),breaks = c(10,20,30,40,50,60,70,80,90,100))+ 
+  scale_y_continuous(limits = c(0,500)) + 
+  ggtitle("Age vs Squat")
+Squat
+
+#Female Squat
+FemaleSquat = ggplot(filter(Powerliftingstatsclean, Sex == 'F'), aes(x=Age, y=BestSquatKg)) + 
+  geom_point(color = "magenta3", alpha = 0.3) + 
+  geom_smooth(method = 'loess', se=FALSE, color = "gray2") + 
+  scale_x_continuous(limits = c(0,80),breaks = c(10,20,30,40,50,60,70,80))+ 
+  scale_y_continuous(limits = c(0,500)) +
+  ggtitle("Female: Age vs Squat")
+FemaleSquat
+
+#Male Squat
+MaleSquat = ggplot(filter(Powerliftingstatsclean, Sex == 'M'), aes(x=Age, y=BestSquatKg)) + 
+  geom_point(color = "magenta3", alpha = 0.3) + 
+  geom_smooth(method = 'loess', se=FALSE, color = "gray2") + 
+  scale_x_continuous(limits = c(0,85),breaks = c(10,20,30,40,50,60,70,80))+ 
+  scale_y_continuous(limits = c(0,500)) +
+  ggtitle("Male: Age vs Squat")
+MaleSquat
+```
+
+#Total Kg
+```{r}
+#Total Kg
+TotalKg = ggplot(Powerliftingstatsclean, aes(x=Age, y=TotalKg)) + 
+  geom_point(color = "Green4", alpha = 0.3) + 
+  geom_smooth(method = 'loess', se=FALSE, color = "gray2") + 
+  scale_x_continuous(limits = c(0,85),breaks = c(10,20,30,40,50,60,70,80))+ 
+  scale_y_continuous(limits = c(0,500)) +
+  ggtitle("Age vs TotalKg")
+TotalKg
+
+#Men Total Kg
+MaleTotalKg = ggplot(filter(Powerliftingstatsclean, Sex == 'M'), aes(x=Age, y=TotalKg)) + 
+  geom_point(color = "Green4", alpha = 0.3) + 
+  geom_smooth(method = 'loess', se=FALSE, color = "gray2") + 
+  scale_x_continuous(limits = c(0,90),breaks = c(10,20,30,40,50,60,70,80,90))+ 
+  scale_y_continuous(limits = c(0,500)) +
+  ggtitle("Male: Age vs TotalKg")
+MaleTotalKg
+
+#Female TotalKg
+FemaleTotalKg = ggplot(filter(Powerliftingstatsclean, Sex == 'F'), aes(x=Age, y=TotalKg)) + 
+  geom_point(color = "Green4", alpha = 0.3) + 
+  geom_smooth(method = 'loess', se=FALSE, color = "gray2") + 
+  scale_x_continuous(limits = c(0,80),breaks = c(10,20,30,40,50,60,70,80))+ 
+  scale_y_continuous(limits = c(0,500)) +
+  ggtitle("Female: Age vs TotalKg")
+FemaleTotalKg
+
+```
+
+#Comparison Between Male and Female
+```{r}
+MaleComparisonPage = ggarrange(MaleBench, MaleDeadlift, MaleSquat, MaleTotalKg)
+MaleComparisonPage
+FemaleComparisonPage = ggarrange(FemaleBench, FemaleDeadlift, FemaleSquat, FemaleTotalKg)
+FemaleComparisonPage
+
+```
+
+#Maintaining Strength
+```{r}
+strength_dataset = clean_lifting_data %>%
+  group_by(Name, Sex) %>%
+  summarise(MaxSquat = max(BestSquatKg), MinSquat = min(BestSquatKg),
+            MaxBench = max(BestBenchKg), MinBench = min(BestBenchKg),
+            MaxDeadlift = max(BestDeadliftKg), MinDeadlift = min(BestDeadliftKg),
+            BestTotalKg = max(TotalKg), LowTotalKg = min(TotalKg),
+            BestWilks = max(Wilks), LowWilks = min(Wilks))
+
+strength_drop_dataset = strength_dataset %>%
+  mutate(squat_drop = (MaxSquat - MinSquat)/MaxSquat,
+         bench_drop = (MaxBench - MinBench)/MaxBench,
+         deadlift_drop = (MaxDeadlift - MinDeadlift)/MaxDeadlift,
+         totalkg_drop = (BestTotalKg - LowTotalKg)/BestTotalKg,
+         wilks_drop = (BestWilks - LowWilks)/BestWilks) %>%
+  select(Name,Sex,squat_drop,bench_drop,deadlift_drop,totalkg_drop,wilks_drop)%>%
+  filter(squat_drop !=0 & bench_drop!= 0 & deadlift_drop != 0 & totalkg_drop != 0 & wilks_drop != 0)%>%
+  mutate_at(vars(squat_drop,bench_drop,deadlift_drop,totalkg_drop,wilks_drop),
+            funs(round(.,2)))
+
+drop_gender = strength_drop_dataset %>%
+  group_by(Sex) %>%
+  summarise_at(vars(squat_drop,bench_drop,deadlift_drop,totalkg_drop,wilks_drop), mean)
+
+```
+
+#Multiple Linear Regression
+```{r}
+linear_lifting_set = openpowerlifting %>%
+  select(Sex, Equipment, Age, BodyweightKg,BestSquatKg, BestBenchKg, BestDeadliftKg,Wilks)
+linear_lifting_set = linear_lifting_set[complete.cases(linear_lifting_set),]
+
+linear_lifting_set$Sex <- factor(linear_lifting_set$Sex)
+ 
+fit_lift <- lm(Wilks ~ Sex + Equipment + Age + BodyweightKg +
+               BestSquatKg+ BestBenchKg + BestDeadliftKg, data = linear_lifting_set)
+
+
+
+summary(fit_lift)
+```
+R^2 is .9239 which means that 92.7 % of the toal variation can be explained by its linear relationship with its predictors. Since the p-value is less than 0.5, the linear relationship between the response variable and predictors is significant.
+
+#Full Model
+```{R}
+fit_lift_full = lm(Wilks ~.^2, data = linear_lifting_set)
+summary(fit_lift_full)
+
+
+```
+Since p-value is for the f-test is less than 0.05, We can reject the null hypothesis. Therefore, we prefer the model with interactive terms.
+
+Selecting Model
+```{r}
+anova(fit_lift,fit_lift_full)
+
+```
+From using the anova function, we can see the p-value of the model with interaction is lower than the with no interaction. It's also lower than 0.06. Therefore, we can conclude that the full model does a better job with fitting the data.
+
+Stepwise Regression
+```{r}
+fit.backward <- step(fit_lift_full, direction = "backward")
+fit.forward <- step(fit_lift_full, direction = "forward")
+fit.both <- step(fit_lift_full, direction = "both")
+```
+THe lowest AIC will be chosen as the best model. The lowest model had a AIC of 334140.8
+
+Testing out best Model
+```{r}
+best_wilks_model <- lm(Wilks~(Sex + Equipment + Age + BodyweightKg + BestSquatKg + 
+    BestBenchKg + BestDeadliftKg)^2, data = linear_lifting_set)
+
+summary(best_wilks_model)
+
+```
+
+#Daignostics
+
+Residual Plot
+```{r}
+resd <- residuals(best_wilks_model)
+pred <- fitted(best_wilks_model)
+plot(pred,resd, xlab = "Predicted Values", ylab = "Residuals", main = "Residual Versus Predicted Values")
+abline(h = 0)
+
+```
+
+QQplot
+```{r}
+qqnorm(resd, pch = )
+qqline(resd)
+
+
+```
+THe qqplot look right-skewed
+
+Histogram
+```{r}
+hist(resd, main = "Histogram of Residual", xlim = c(-45,70))
+
+```
+
+#Scatter Plot of Residuals
+```{r}
+plot(resd, main = "Scatter plot of residuals", pch = 19)
+
+
+```
+
+
